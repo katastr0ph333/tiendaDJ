@@ -1,2 +1,0 @@
-# tiendaDJ
-PRueba3BAckend
