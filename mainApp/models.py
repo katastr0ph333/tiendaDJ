@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from uuid import uuid4
 # Create your models here.
 
 
@@ -9,13 +10,24 @@ ESTADO_PEDIDO_CHOICES = [
     ('ENTREGADO', 'Entregado'), 
     ('CANCELADO', 'Cancelado'),
     ('SOLICITADO', 'Solicitado'),
+    ('EN_PROCESO', 'En Proceso'),
+    ('FINALIZADO', 'Finalizado')
 ]
 
 ESTADO_PAGO_CHOICES = [
     ('PENDIENTE', 'Pendiente'),
     ('COMPLETADO', 'Completado'),
-    ('FALLIDO', 'Fallido'),
+    ('PARCIAL', 'Parcial'),
+    
 ]
+
+RED_SOCIAL_CHOICES = [
+    ('WHATSAPP', 'WhatsApp'),
+    ('INSTAGRAM', 'Instagram'),
+    ('FACEBOOK', 'Facebook'),
+    ('PRESENCIAL', 'Presencial'),
+    ('SITIO_WEB', 'Sitio Web'),
+    ('OTRO', 'Otro')]
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -72,6 +84,7 @@ class PlataformaOrigen(models.Model):
     
 class Pedido(models.Model):
     cliente_nombre = models.CharField(max_length=200)
+    cliente_email = models.EmailField( blank=True, null=True)
     cliente_telefono = models.CharField(max_length=20, blank=True, null=True)
     cliente_red_social = models.CharField(max_length=100, blank=True, null=True)
     producto_referencia = models.ForeignKey(Producto, on_delete=models.SET_NULL, blank=True, null=True)
@@ -81,7 +94,11 @@ class Pedido(models.Model):
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=ESTADO_PEDIDO_CHOICES, default='SOLICITADO')
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='PENDIENTE')
-    
+    medio_contacto = models.CharField(max_length=20, choices=RED_SOCIAL_CHOICES, blank=True, null=True)
+    def save(self, *args, **kwargs):
+        if not self.id or not self.token_seguimiento:
+            self.token_seguimiento = str(uuid4())
+        super().save(*args, **kwargs)
 
 class PedidoImagen(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
