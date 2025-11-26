@@ -86,5 +86,3 @@ class Pedido(models.Model):
 class PedidoImagen(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     imagen = models.ImageField(upload_to='pedidos/referencia/')
-
-    
