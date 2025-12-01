@@ -42,13 +42,11 @@ class ProductoImagenInline(admin.TabularInline):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ("id",'token_seguimiento', "nombre", "categoria", "precio_base", "destacado")
+    list_display = ("id", "nombre", "categoria", "precio_base", "destacado")
     list_filter = ("categoria", "destacado")
     search_fields = ("nombre", "descripcion")
     prepopulated_fields = {"slug": ("nombre",)}
     inlines = [ProductoImagenInline]
-    
-    readonly_fields = ("fecha_solicitud","token_seguimiento")
 
 
 

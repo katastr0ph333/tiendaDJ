@@ -1,0 +1,58 @@
+{% load static %}
+
+{% block title %}Solicitar Artículo Personalizado - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    
+    <h2 class="alert alert-info display-4 text-center">
+        Solicitud de Pedido Personalizado
+    </h2>
+
+    {% if producto_referencia %}
+    <div class="alert alert-warning text-center">
+        Estás solicitando una personalización basada en el producto: 
+        <strong>{{ producto_referencia.nombre }}</strong>.
+    </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="row g-3">
+        
+        {% csrf_token %} 
+        
+        <h3>Datos de Contacto</h3>
+
+        {% for field in form %}
+            <div class="col-md-6 col-12">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        
+        <h3>2. Imágenes y Descripción</h3>
+
+        <div class="col-12 mb-3">
+            <label for="{{ form.imagenes_referencia.id_for_label }}" class="form-label">
+                {{ form.imagenes_referencia.label }}
+            </label>
+            {{ form.imagenes_referencia }}
+            {% if form.imagenes_referencia.help_text %}
+                <small class="form-text text-muted">{{ form.imagenes_referencia.help_text }}</small>
+            {% endif %}
+            {% for error in form.imagenes_referencia.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-12 mt-4 text-center">
+            <input type="submit" class="btn btn-primary btn-lg" value="Enviar Solicitud">
+        </div>
+    </form>
+</div>
+{% endblock %}
