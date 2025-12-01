@@ -17,14 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from mainApp import views
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
-<<<<<<< Updated upstream
     path("", views.catalogo, name="catalogo"),
-]
-=======
-    path('producto/<slug:slug>/', views.detalle_producto, name='producto_detalle'),
-    path("", views.catalogo, name="catalogo"),
+    path("producto/<slug:slug>/", views.detalle_producto, name="producto_detalle"),
     path("solicitar/<int:producto_id>/", views.solicitud_producto, name="solicitud_producto")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
->>>>>>> Stashed changes
+

@@ -1,13 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-<<<<<<< Updated upstream
-from .models import Producto, Pedido, PedidoImagen, PlataformaOrigen
-
-def catalogo(request):
-    productos = Producto.objects.all()
-    return render(request, "catalogo.html", {"productos": productos})
-=======
+from django.http import HttpResponse
 from django.db.models import Q
-from mainApp.forms import PedidoForm
+from .forms import PedidoForm, PedidoImagenForm
 from .models import Producto, Categoria, Pedido, PedidoImagen, PlataformaOrigen
 from django.forms import modelformset_factory
 def catalogo(request):
@@ -42,33 +36,42 @@ def catalogo_producto(request):
     return render(request, "catalogo.html", contexto)
 def detalle_producto(request, slug):
     producto = get_object_or_404(
-        Producto.objects.prefetch_related('imagenes'), 
+        Producto.objects.prefetch_related("imagenes"),
         slug=slug
     )
+    return render(request, "detalle_producto.html", {"producto": producto})
 
-    contexto = {
-        'producto': producto,
-    }
-    return render(request, "detalle_producto.html", contexto)
+
 def solicitud_producto(request, producto_id):
+
     producto = get_object_or_404(Producto, id=producto_id)
     plataforma = PlataformaOrigen.objects.get_or_create(nombre="Sitio Web")[0]
 
-    ImagenFormSet = modelformset_factory(PedidoImagen, form=PedidoImagenForm, extra=5)
+    ImagenFormSet = modelformset_factory(
+        PedidoImagen,
+        form=PedidoImagenForm,
+        extra=5,
+        can_delete=False
+    )
 
     if request.method == "POST":
         form = PedidoForm(request.POST)
         formset = ImagenFormSet(request.POST, request.FILES, queryset=PedidoImagen.objects.none())
 
         if form.is_valid() and formset.is_valid():
+
             pedido = form.save(commit=False)
             pedido.producto_referencia = producto
             pedido.plataforma_origen = plataforma
             pedido.save()
 
+            # Guardar imágenes
             for f in formset.cleaned_data:
-                if f:
-                    PedidoImagen.objects.create(pedido=pedido, imagen=f['imagen'])
+                if f and f.get("imagen"):
+                    PedidoImagen.objects.create(
+                        pedido=pedido,
+                        imagen=f["imagen"]
+                    )
 
             return redirect("catalogo")
 
@@ -76,5 +79,8 @@ def solicitud_producto(request, producto_id):
         form = PedidoForm()
         formset = ImagenFormSet(queryset=PedidoImagen.objects.none())
 
-    return render(request, "solicitud.html", {"form": form, "formset": formset})
->>>>>>> Stashed changes
+    return render(request, "solicitud.html", {
+        "form": form,
+        "formset": formset,
+        "producto": producto
+    })

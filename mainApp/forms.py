@@ -30,6 +30,15 @@ class PedidoForm(forms.ModelForm):
             "cliente_telefono": "Número de teléfono",
             "cliente_red_social": "Usuario o red social",
         }
+        widgets = {
+            "cliente_nombre": forms.TextInput(attrs={"class": "form-control"}),
+            "cliente_telefono": forms.TextInput(attrs={"class": "form-control"}),
+            "cliente_red_social": forms.TextInput(attrs={"class": "form-control"}),
+
+            "descripcion_solicitud": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "fecha_requerida": forms.DateTimeInput(attrs={"class": "form-control", "type": "datetime-local"}),
+        }
+
 
     def save(self, commit=True):
         pedido = super().save(commit=commit)
