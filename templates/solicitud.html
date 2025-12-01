@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Solicitud de Pedido{% endblock %}
+
+{% block contenido %}
+
+<div class="container mt-5">
+
+    <h2 class="alert alert-info text-center">Solicitud de Pedido Personalizado</h2>
+
+    {% if producto_referencia %}
+    <div class="alert alert-warning text-center">
+        Basado en: <strong>{{ producto_referencia.nombre }}</strong>
+    </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+
+        <h4>Datos de Contacto</h4>
+
+        {% for field in form %}
+        <div class="col-md-6 col-12">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                <small class="text-muted">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <h4>Imágenes de referencia</h4>
+
+        <div class="col-12">
+            <label class="form-label">{{ form.imagenes_referencia.label }}</label>
+            {{ form.imagenes_referencia }}
+        </div>
+
+        <div class="col-12 text-center mt-4">
+            <button class="btn btn-dark btn-lg" type="submit">Enviar solicitud</button>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}
