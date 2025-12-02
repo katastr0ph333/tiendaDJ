@@ -6,6 +6,11 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # Ensure project root is on sys.path so packages like `mainApp` are importable
+    # even if the working directory or environment is unusual.
+    proj_root = os.path.dirname(os.path.abspath(__file__))
+    if proj_root not in sys.path:
+        sys.path.insert(0, proj_root)
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tiendaDJ.settings')
     try:
         from django.core.management import execute_from_command_line

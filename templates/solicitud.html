@@ -13,7 +13,7 @@
     </div>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data" style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+    <form id="solicitud-form" method="POST" action="{% url 'solicitud_producto' producto.id %}" enctype="multipart/form-data" style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
         {% csrf_token %}
 
         <h4 style="font-size: 16px; margin-bottom: 15px; font-weight: bold;">Datos del Cliente</h4>
@@ -50,6 +50,15 @@
                     <div style="color: #d9534f; font-size: 12px; margin-top: 3px;">{{ form.cliente_red_social.errors }}</div>
                 {% endif %}
             </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: normal; font-size: 14px;">{{ form.plataforma_origen.label }}</label>
+            {{ form.plataforma_origen }}
+            {% if form.plataforma_origen.errors %}
+                <div style="color: #d9534f; font-size: 12px; margin-top: 3px;">{{ form.plataforma_origen.errors }}</div>
+            {% endif %}
+            <small style="display: block; color: #999; margin-top: 5px; font-size: 12px;">Selecciona la plataforma desde la cual realizas la solicitud (administrable desde el panel).</small>
         </div>
 
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
@@ -108,5 +117,33 @@
     </form>
 
 </div>
+
+<script>
+(() => {
+    const form = document.getElementById('solicitud-form');
+    if (!form) return;
+
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    // Prevent double submission: set a flag on the first submit and disable the button.
+    form.addEventListener('submit', function (e) {
+        if (form.__submitted) {
+            // If already submitted, prevent any further submission.
+            e.preventDefault();
+            return false;
+        }
+        try {
+            form.__submitted = true;
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.style.opacity = 0.7;
+            }
+        } catch (err) {
+            // ignore
+        }
+        return true;
+    });
+})();
+</script>
 
 {% endblock %}

@@ -4,6 +4,8 @@ from .forms import PedidoForm, PedidoImagenForm
 from .models import Producto, Categoria, Pedido, PedidoImagen, PlataformaOrigen
 from django.forms import modelformset_factory
 from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from django.core.paginator import Paginator
 
 def catalogo(request):
     productos = Producto.objects.all()
@@ -45,7 +47,6 @@ def detalle_producto(request, slug):
 
 def solicitud_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
-    plataforma = PlataformaOrigen.objects.get_or_create(nombre="Sitio Web")[0]
 
     ImagenFormSet = modelformset_factory(
         PedidoImagen,
@@ -55,13 +56,18 @@ def solicitud_producto(request, producto_id):
     )
 
     if request.method == "POST":
-        form = PedidoForm(request.POST)
+
+        form = PedidoForm(request.POST, request.FILES)
         formset = ImagenFormSet(request.POST, request.FILES, queryset=PedidoImagen.objects.none())
+        try:
+            print('DEBUG: solicitud_producto POST received, keys=', list(request.POST.keys()))
+        except Exception:
+            pass
 
         if form.is_valid() and formset.is_valid():
             pedido = form.save(commit=False)
             pedido.producto_referencia = producto
-            pedido.plataforma_origen = plataforma
+            # plataforma_origen is selected by the user via the form
             pedido.save()
 
             # Guardar imágenes
@@ -71,12 +77,14 @@ def solicitud_producto(request, producto_id):
                         pedido=pedido,
                         imagen=f["imagen"]
                     )
+            messages.success(request, f"Solicitud enviada correctamente. Número de pedido: {pedido.id}")
 
-            # Mensaje de confirmación al crear el pedido
-            messages.success(request, f"Solicitud enviada. Tu token de seguimiento es: {pedido.token_seguimiento}")
-
-            # Redirigir a la página de seguimiento con el token
             return redirect("seguimiento_pedido", token=pedido.token_seguimiento)
+        else:
+            if not form.is_valid():
+                messages.error(request, f"Errores en el formulario: {form.errors}")
+            if not formset.is_valid():
+                messages.error(request, f"Errores en las imágenes: {formset.errors}")
 
     else:
         form = PedidoForm()
@@ -94,8 +102,6 @@ def seguimiento_pedido(request, token):
     Accesible a través de una URL única con el token.
     """
     pedido = get_object_or_404(Pedido, token_seguimiento=token)
-    
-    # Definir colores y descripciones para los estados
     estados_info = {
         'SOLICITADO': {'color': 'primary', 'descripcion': 'Tu pedido ha sido recibido'},
         'APROBADO': {'color': 'info', 'descripcion': 'Tu pedido ha sido aprobado'},

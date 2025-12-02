@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ClearableFileInput
-from .models import Pedido, PedidoImagen
+from .models import Pedido, PedidoImagen, PlataformaOrigen
 
 class PedidoForm(forms.ModelForm):
 
@@ -19,6 +19,7 @@ class PedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = [
+            "plataforma_origen",
             "cliente_nombre",
             "cliente_email",
             "cliente_telefono",
@@ -41,6 +42,15 @@ class PedidoForm(forms.ModelForm):
             "fecha_requerida": forms.DateTimeInput(attrs={"style": "width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;", "type": "datetime-local"}),
         }
 
+
+    plataforma_origen = forms.ModelChoiceField(
+        queryset=PlataformaOrigen.objects.all(),
+        required=True,
+        label='Plataforma de origen',
+        empty_label='Selecciona una plataforma',
+        widget=forms.Select(attrs={"style": "width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"}),
+    )
+
     def save(self, commit=True):
         pedido = super().save(commit=commit)
         imagenes = self.files.getlist('imagenes_referencia')
@@ -54,9 +64,7 @@ class PedidoForm(forms.ModelForm):
         if fecha:
             from django.utils import timezone
             now = timezone.now()
-            # If fecha is naive, compare in naive form by converting now to naive in current timezone
             if hasattr(fecha, 'tzinfo') and fecha.tzinfo is None:
-                # make now naive in current timezone
                 try:
                     import datetime
                     now_naive = now.replace(tzinfo=None)

@@ -16,8 +16,8 @@
     <div style="border: 1px solid #ddd; padding: 10px; background: white;">
         {% if producto.imagenes.first %}
             <img src="{{ producto.imagenes.first.imagen.url }}" 
-                 alt="{{ producto.nombre }}" 
-                 style="width: 100%; height: 150px; object-fit: cover; margin-bottom: 10px;">
+                alt="{{ producto.nombre }}" 
+                style="width: 100%; height: 150px; object-fit: cover; margin-bottom: 10px;">
         {% else %}
             <div style="width: 100%; height: 150px; background: #e0e0e0; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
                 Sin imagen
