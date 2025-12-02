@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.contrib import messages
 from .models import (
     Categoria,
     Producto,
@@ -22,14 +23,6 @@ def miniatura(obj):
 miniatura.short_description = "Vista previa"
 
 
-@admin.register(Categoria)
-class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ("id", "nombre", "slug")
-    search_fields = ("nombre",)
-    prepopulated_fields = {"slug": ("nombre",)}
-    ordering = ("nombre",)
-
-
 class ProductoImagenInline(admin.TabularInline):
     model = ProductoImagen
     extra = 1
@@ -40,6 +33,22 @@ class ProductoImagenInline(admin.TabularInline):
         return miniatura(obj)
 
 
+class PedidoImagenInline(admin.TabularInline):
+    model = PedidoImagen
+    extra = 1
+    readonly_fields = ("preview",)
+    fields = ("imagen", "preview")
+
+    def preview(self, obj):
+        return miniatura(obj)
+
+
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ("id", "nombre", "slug")
+    ordering = ("nombre",)
+
+
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ("id", "nombre", "categoria", "precio_base", "destacado")
@@ -47,8 +56,6 @@ class ProductoAdmin(admin.ModelAdmin):
     search_fields = ("nombre", "descripcion")
     prepopulated_fields = {"slug": ("nombre",)}
     inlines = [ProductoImagenInline]
-
-
 
 
 @admin.register(Insumo)
@@ -63,16 +70,6 @@ class InsumoAdmin(admin.ModelAdmin):
 class PlataformaOrigenAdmin(admin.ModelAdmin):
     list_display = ("id", "nombre")
     search_fields = ("nombre",)
-
-
-class PedidoImagenInline(admin.TabularInline):
-    model = PedidoImagen
-    extra = 1
-    readonly_fields = ("preview",)
-    fields = ("imagen", "preview")
-
-    def preview(self, obj):
-        return miniatura(obj)
 
 
 @admin.register(Pedido)
@@ -136,9 +133,25 @@ class PedidoAdmin(admin.ModelAdmin):
         }),
     )
 
-    # regla de negocio: no permitir finalizar sin pago
     def save_model(self, request, obj, form, change):
         if obj.estado == "ENTREGADO" and obj.estado_pago != "COMPLETADO":
             from django.core.exceptions import ValidationError
             raise ValidationError("No se puede marcar como ENTREGADO si el pago no está COMPLETADO.")
         super().save_model(request, obj, form, change)
+
+    @admin.action(description="Marcar pagos como COMPLETADO")
+    def marcar_pago_completado(self, request, queryset):
+        """Marca el campo `estado_pago` como 'COMPLETADO' para los pedidos seleccionados."""
+        actualizado = 0
+        for pedido in queryset:
+            if pedido.estado_pago != 'COMPLETADO':
+                pedido.estado_pago = 'COMPLETADO'
+                pedido.save()
+                actualizado += 1
+
+        if actualizado:
+            messages.success(request, f'{actualizado} pedido(s) marcado(s) como pago COMPLETADO.')
+        else:
+            messages.info(request, 'No se actualizaron pedidos (ya estaban COMPL ETADO).')
+
+    actions = ['marcar_pago_completado']

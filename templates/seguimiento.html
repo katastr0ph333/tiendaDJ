@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Seguimiento{% endblock %}
+
+{% block contenido %}
+
+<div style="max-width: 700px; margin: 0 auto;">
+
+    <div style="border: 1px solid #ddd; padding: 15px; background: #f5f5f5; margin-bottom: 20px;">
+        <h1 style="font-size: 24px; margin: 0 0 15px 0; font-weight: normal;">Seguimiento de tu Pedido</h1>
+        <p style="margin: 0; font-size: 12px; color: #666;">Token: {{ pedido.token_seguimiento }}</p>
+    </div>
+    <div style="border: 1px solid #ddd; padding: 15px; background: white; margin-bottom: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Datos del Cliente</h3>
+        <p style="margin: 5px 0;"><strong>Nombre:</strong> {{ pedido.cliente_nombre }}</p>
+        {% if pedido.cliente_email %}
+            <p style="margin: 5px 0;"><strong>Email:</strong> {{ pedido.cliente_email }}</p>
+        {% endif %}
+        {% if pedido.cliente_telefono %}
+            <p style="margin: 5px 0;"><strong>Teléfono:</strong> {{ pedido.cliente_telefono }}</p>
+        {% endif %}
+        {% if pedido.cliente_red_social %}
+            <p style="margin: 5px 0;"><strong>Red Social:</strong> {{ pedido.cliente_red_social }}</p>
+        {% endif %}
+    </div>
+            <div style="border: 1px solid #ddd; padding: 15px; background: white; margin-bottom: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Estado</h3>
+        <p style="margin: 5px 0;"><strong>Estado del Pedido:</strong> {{ pedido.get_estado_display }}</p>
+        <p style="margin: 5px 0;"><strong>Estado de Pago:</strong> {{ pedido.get_estado_pago_display }}</p>
+        <p style="margin: 5px 0;"><strong>Fecha de solicitud:</strong> {{ pedido.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+    </div>
+            <div style="border: 1px solid #ddd; padding: 15px; background: white; margin-bottom: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Detalles</h3>
+        {% if pedido.producto_referencia %}
+            <p style="margin: 5px 0;"><strong>Producto:</strong> {{ pedido.producto_referencia.nombre }}</p>
+        {% endif %}
+        {% if pedido.fecha_requerida %}
+            <p style="margin: 5px 0;"><strong>Fecha requerida:</strong> {{ pedido.fecha_requerida|date:"d/m/Y H:i" }}</p>
+        {% endif %}
+        <p style="margin: 5px 0;"><strong>Plataforma:</strong> {{ pedido.plataforma_origen.nombre }}</p>
+        {% if pedido.descripcion_solicitud %}
+            <p style="margin: 10px 0 5px 0;"><strong>Descripción:</strong></p>
+            <p style="margin: 5px 0; white-space: pre-wrap;">{{ pedido.descripcion_solicitud }}</p>
+        {% endif %}
+    </div>
+    {% if pedido.imagenes.all %}
+        <div style="border: 1px solid #ddd; padding: 15px; background: white; margin-bottom: 20px;">
+            <h3 style="font-size: 16px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Imágenes de referencia</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                {% for imagen in pedido.imagenes.all %}
+                    <div>
+                        <img src="{{ imagen.imagen.url }}" style="width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    <a href="{% url 'catalogo' %}" style="display: inline-block; padding: 12px 24px; background: #333; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">← Volver al Catálogo</a>
+
+{% endblock %}
