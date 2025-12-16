@@ -6,9 +6,10 @@ Instalacion base:
 dentro de la terminal o consola debes ingresar lo siguiente:
 
 ```powershell
-pip install django pillow
+pip install django pillow djangorestframework
 # si hay problemas, prueba con:
-python -m pip install django pillow
+python -m pip install django pillow djangorestframework
+
 ```
 
 paso 2
