@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path
 from mainApp import views
@@ -13,6 +12,13 @@ urlpatterns = [
     path("solicitar/<int:producto_id>/", views.solicitud_producto, name="solicitud_producto"),
     path("seguimiento/<str:token>/", views.seguimiento_pedido, name="seguimiento_pedido"),
     path('api/insumos/', api_views.insumo_list, name='insumo_list'),
+    path('api/pedidos/', api_views.pedido_list, name='pedido_list'),
+    path('api/pedidos/<int:pk>/', api_views.pedido_list, name='api_pedido_editar'),
+    path('api/pedidos/filtrar/', api_views.pedido_list_filtrado, name='api_pedido_filtrar'),
+    
+
+
+
 
 ] 
 

@@ -5,6 +5,7 @@ from .models import Producto, Categoria, Pedido, PedidoImagen, PlataformaOrigen
 from django.forms import modelformset_factory
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator
 
 def catalogo(request):
@@ -128,3 +129,5 @@ def seguimiento_pedido(request, token):
     }
     
     return render(request, "seguimiento.html", contexto)
+
+
